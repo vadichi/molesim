@@ -1,0 +1,14 @@
+# Editor files
+*.iml
+*.swp
+.idea/
+.fleet/
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Rust files
+Cargo.lock
+target/

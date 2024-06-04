@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "core",
+    "bindings"
+]
+
+[workspace.package]
+publish = false
+version = "0.2.0"
+
+edition = "2021"
+
