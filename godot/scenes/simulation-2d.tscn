@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://bse0rqes46mfh"]
+
+[ext_resource type="Texture2D" uid="uid://djnikgcsqkyaa" path="res://resources/particle.svg" id="1_7bmqg"]
+
+[node name="simulation-2d" type="Node2D"]
+
+[node name="particle-1" type="Particle" parent="."]
+position = Vector2(315, 1199)
+scale = Vector2(0.307617, 0.307617)
+texture = ExtResource("1_7bmqg")
