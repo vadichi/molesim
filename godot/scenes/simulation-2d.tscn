@@ -4,7 +4,11 @@
 
 [node name="simulation-2d" type="Node2D"]
 
-[node name="particle-1" type="Particle" parent="."]
-position = Vector2(315, 1199)
-scale = Vector2(0.307617, 0.307617)
-texture = ExtResource("1_7bmqg")
+[node name="primary-camera" type="Camera2D" parent="."]
+offset = Vector2(2.08165e-12, 2.08165e-12)
+anchor_mode = 0
+
+[node name="scene-manager" type="SceneManager" parent="."]
+particle_density = 100.0
+particle_scaling = Vector2(0.05, 0.05)
+particle_texture = ExtResource("1_7bmqg")
