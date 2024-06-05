@@ -1,13 +1,12 @@
 use std::f64::consts::PI;
 
-use crate::math::vector2::MVector2;
-
-use super::Real;
+use crate::math::vector2::Vector2;
+use crate::math::Real;
 
 // Typically, approximately equal to inter-particle distance
 const SMOOTHING_RADIUS: Real = 100.0;
 
-pub fn influence_factor(source: MVector2, probe: MVector2) -> Real {
+pub fn influence_factor(source: Vector2, probe: Vector2) -> Real {
     let q = (source - probe).magnitude().abs() / SMOOTHING_RADIUS;
 
     let f = (3.0 / (2.0 * PI))

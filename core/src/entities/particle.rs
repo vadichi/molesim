@@ -1,42 +1,33 @@
-use crate::math::{vector2::MVector2, Real};
+use crate::entities::{CollisionEntity, SimulationEntity};
+use crate::math::{vector2::Vector2, Real};
 
-use crate::entities::base::{
-    collider::{BaseCollisionEntity, CollisionEntity},
-    simulated::SimulationEntity,
-};
-
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct MassiveParticle {
-    acceleration: MVector2,
+    position: Vector2,
+    velocity: Vector2,
+    acceleration: Vector2,
 
-    collision_entity: Box<dyn CollisionEntity>,
+    mass: Real,
 }
 
 impl MassiveParticle {
-    pub fn new(mass: Real, position: MVector2, velocity: MVector2) -> Self {
+    pub fn new(position: Vector2, velocity: Vector2, acceleration: Vector2, mass: Real) -> Self {
         Self {
-            acceleration: MVector2::new(0.0, -9.8),
-            collision_entity: Box::new(BaseCollisionEntity::new(position, velocity, mass)),
+            position,
+            velocity,
+            acceleration,
+            mass,
         }
     }
 }
 
 impl SimulationEntity for MassiveParticle {
     fn update(&mut self, delta: f64) {
-        let dv = self.acceleration * delta;
-        *self.velocity_mut() += dv;
+        let delta_velocity = self.acceleration * delta;
+        *self.velocity_mut() += delta_velocity;
 
-        let dp = self.velocity() * delta;
-        *self.position_mut() += dp;
-
-        self.collision_entity.update(delta);
-    }
-
-    fn position(&self) -> MVector2 {
-        self.collision_entity.position()
-    }
-
-    fn position_mut(&mut self) -> &mut MVector2 {
-        self.collision_entity.position_mut()
+        let delta_position = self.velocity() * delta;
+        *self.position_mut() += delta_position;
     }
 }
 
@@ -48,37 +39,40 @@ impl CollisionEntity for MassiveParticle {
         }
 
         let total_mass = self.mass() + other.mass();
-        let distance_coefficient = 1.0 / distance.powi(2);
 
-        let self_velocity = -(2.0 * other.mass() / total_mass)
-            * distance_coefficient
-            * ((self.velocity() - other.velocity()) * (self.position() - other.position()))
-            * (self.position() - other.position());
+        let self_velocity = (self.velocity() * (self.mass() - other.mass())
+            + 2.0 * other.mass() * other.velocity())
+            / total_mass;
 
-        let other_velocity = -(2.0 * self.mass() / total_mass)
-            * distance_coefficient
-            * ((other.velocity() - self.velocity()) * (other.position() - self.position()))
-            * (other.position() - self.position());
+        let other_velocity = (other.velocity() * (other.mass() - self.mass())
+            + 2.0 * self.mass() * self.velocity())
+            / total_mass;
 
         *self.velocity_mut() = self_velocity;
         *other.velocity_mut() = other_velocity;
-
-        self.collision_entity.collide(other);
     }
 
-    fn velocity(&self) -> MVector2 {
-        self.collision_entity.velocity()
+    fn position(&self) -> Vector2 {
+        self.position
     }
 
-    fn velocity_mut(&mut self) -> &mut MVector2 {
-        self.collision_entity.velocity_mut()
+    fn position_mut(&mut self) -> &mut Vector2 {
+        &mut self.position
+    }
+
+    fn velocity(&self) -> Vector2 {
+        self.velocity
+    }
+
+    fn velocity_mut(&mut self) -> &mut Vector2 {
+        &mut self.velocity
     }
 
     fn mass(&self) -> Real {
-        self.collision_entity.mass()
+        self.mass
     }
 
     fn mass_mut(&mut self) -> &mut Real {
-        self.collision_entity.mass_mut()
+        &mut self.mass
     }
 }

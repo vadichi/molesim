@@ -1,83 +1,70 @@
-use std::cell::RefCell;
+use std::cell::{RefCell, UnsafeCell};
 
 use crate::{
-    entities::{
-        base::{collider::CollisionEntity, simulated::SimulationEntity},
-        bbox::BoundingBox,
-        particle::MassiveParticle,
-    },
-    math::{vector2::MVector2, Real},
+    entities::{fence::Fence, particle::MassiveParticle, CollisionEntity, SimulationEntity},
+    math::{vector2::Vector2, Real},
 };
 
 pub struct Simulation {
-    bbox: BoundingBox,
-    particles: Vec<RefCell<MassiveParticle>>,
+    fence: Fence,
+    particles: Vec<UnsafeCell<MassiveParticle>>,
 }
 
 impl Simulation {
-    pub fn new(width: Real, height: Real, particle_density: Real, mass: Real) -> Self {
-        let bbox = BoundingBox::new(0.0, 0.0, width, height);
+    pub fn new(dimensions: Vector2, particle_density: Real, mass: Real) -> Self {
+        let fence = Fence::new(dimensions);
 
-        let x_count = (width / particle_density).round() as i32;
-        let y_count = (height / particle_density).round() as i32;
-        let particle_count = x_count * y_count;
+        let particle_positions = fence.distribute_particles(particle_density);
+        let particle_count = particle_positions.len();
 
-        let mut particles = Vec::with_capacity(particle_count as usize);
-        for i in 0..x_count {
-            for j in 0..y_count {
-                let x = (i as Real + 0.25) * particle_density;
-                let y = (j as Real + 0.25) * particle_density;
-
-                particles.push(RefCell::new(MassiveParticle::new(
-                    mass / (particle_count as Real),
-                    MVector2::new(x, y),
-                    MVector2::new(
-                        (0.5 - rand::random::<Real>()) * 10.0,
-                        (0.5 - rand::random::<Real>()) * 10.0,
+        let particles = particle_positions
+            .into_iter()
+            .map(|position| {
+                UnsafeCell::new(MassiveParticle::new(
+                    position,
+                    Vector2::new(
+                        (rand::random::<Real>() - 0.5) * 20.0,
+                        (rand::random::<Real>() - 0.5) * 20.0,
                     ),
-                )));
-            }
-        }
+                    Vector2::new(0.0, -9.8),
+                    mass / (particle_count as Real),
+                ))
+            })
+            .collect();
 
-        Self { bbox, particles }
+        Self { fence, particles }
     }
 
     pub fn particles_count(&self) -> usize {
         self.particles.len()
     }
 
-    pub fn particles_iter_mut(&mut self) -> impl Iterator<Item = &mut RefCell<MassiveParticle>> {
-        self.particles.iter_mut()
+    pub fn particles_iter(&self) -> impl Iterator<Item = &UnsafeCell<MassiveParticle>> {
+        self.particles.iter()
     }
 }
 
 impl SimulationEntity for Simulation {
     fn update(&mut self, delta: f64) {
-        self.bbox.update(delta);
-        for cell in self.particles.iter() {
-            let particle = &mut *cell.borrow_mut();
+        self.fence.update(delta);
+        for cell in self.particles.iter_mut() {
+            let particle = &mut *cell.get_mut();
             particle.update(delta);
         }
 
-        for cell in self.particles.iter() {
-            let particle = &mut *cell.borrow_mut();
-            self.bbox.collide(particle);
+        for cell in self.particles.iter_mut() {
+            let particle = &mut *cell.get_mut();
+            self.fence.collide(particle);
         }
 
-        for i in 0..self.particles.len() {
-            for j in (i + 1)..self.particles.len() {
-                let particle_i = &mut *self.particles[i].borrow_mut();
-                let particle_j = &mut *self.particles[j].borrow_mut();
-                particle_i.collide(particle_j);
+        unsafe {
+            for i in 0..self.particles.len() {
+                for j in (i + 1)..self.particles.len() {
+                    let particle_i = &mut *self.particles[i].get();
+                    let particle_j = &mut *self.particles[j].get();
+                    particle_i.collide(particle_j);
+                }
             }
         }
-    }
-
-    fn position(&self) -> MVector2 {
-        self.bbox.position()
-    }
-
-    fn position_mut(&mut self) -> &mut MVector2 {
-        self.bbox.position_mut()
     }
 }
