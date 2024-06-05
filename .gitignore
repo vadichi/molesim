@@ -5,6 +5,8 @@
 .fleet/
 .vscode/
 
+*.code-workspace
+
 # System files
 .DS_Store
 Thumbs.db
