@@ -3,7 +3,7 @@ use flo_draw::*;
 use molesim_core::{entities::base::simulated::SimulationEntity, simulation::Simulation};
 
 const DEFAULT_FLUID_MASS: f32 = 1.0;
-const DEFAULT_PARTICLE_DENSITY: f32 = 50.0;
+const DEFAULT_PARTICLE_DENSITY: f32 = 60.0;
 
 pub fn main() {
     with_2d_graphics(|| {
@@ -17,7 +17,6 @@ pub fn main() {
         let canvas = create_drawing_window("MoleSim");
 
         canvas.draw(|gc| {
-            gc.canvas_height(1000.0);
             gc.center_region(0.0, 0.0, 1000.0, 1000.0);
 
             gc.clear_layer();
@@ -25,9 +24,9 @@ pub fn main() {
 
         let mut frame = 0;
         loop {
-            simulation.update(0.1);
+            simulation.update(0.2);
 
-            if frame != 4 {
+            if frame != 1 {
                 frame += 1;
                 continue;
             }
@@ -41,8 +40,6 @@ pub fn main() {
 
                 let x = particle.position().x();
                 let y = particle.position().y();
-
-                println!("Particle at ({}, {})", x, y);
 
                 canvas.draw(|gc| {
                     gc.new_path();
