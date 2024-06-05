@@ -3,3 +3,6 @@ name = "molesim-core"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
+
+[dependencies]
+rand = "0.8.5"

@@ -31,12 +31,23 @@ impl Simulation {
                 particles.push(RefCell::new(MassiveParticle::new(
                     mass / (particle_count as Real),
                     MVector2::new(x, y),
-                    MVector2::zero(),
+                    MVector2::new(
+                        (0.5 - rand::random::<Real>()) * 10.0,
+                        (0.5 - rand::random::<Real>()) * 10.0,
+                    ),
                 )));
             }
         }
 
         Self { bbox, particles }
+    }
+
+    pub fn particles_count(&self) -> usize {
+        self.particles.len()
+    }
+
+    pub fn particles_iter_mut(&mut self) -> impl Iterator<Item = &mut RefCell<MassiveParticle>> {
+        self.particles.iter_mut()
     }
 }
 

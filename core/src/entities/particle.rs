@@ -14,7 +14,7 @@ pub struct MassiveParticle {
 impl MassiveParticle {
     pub fn new(mass: Real, position: MVector2, velocity: MVector2) -> Self {
         Self {
-            acceleration: MVector2::zero(),
+            acceleration: MVector2::new(0.0, -9.8),
             collision_entity: Box::new(BaseCollisionEntity::new(position, velocity, mass)),
         }
     }
