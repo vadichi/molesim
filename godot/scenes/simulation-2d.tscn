@@ -9,6 +9,7 @@ offset = Vector2(2.08165e-12, 2.08165e-12)
 anchor_mode = 0
 
 [node name="scene-manager" type="SceneManager" parent="."]
+fluid_mass = 1.0
 particle_density = 100.0
-particle_scaling = Vector2(0.05, 0.05)
+particle_scaling = Vector2(0.1, 0.1)
 particle_texture = ExtResource("1_7bmqg")

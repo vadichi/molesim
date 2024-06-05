@@ -41,7 +41,7 @@ impl ISprite2D for Particle {
         }
 
         self.simulation_entity
-            .override_acceleration(MVector2::new(0.0, 9.81));
+            .override_acceleration(MVector2::new(0.0, 9.81 / 10.0));
         self.simulation_entity.update(delta);
 
         let position = self.simulation_entity.position();

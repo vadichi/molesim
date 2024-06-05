@@ -1,3 +1,4 @@
+mod scene_manager;
 mod util;
 
 // Old
