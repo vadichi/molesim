@@ -1,4 +1,4 @@
-use std::cell::{RefCell, UnsafeCell};
+use std::cell::UnsafeCell;
 
 use crate::{
     entities::{fence::Fence, particle::MassiveParticle, CollisionEntity, SimulationEntity},
