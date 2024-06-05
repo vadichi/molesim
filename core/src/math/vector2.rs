@@ -19,19 +19,31 @@ impl MVector2 {
         (self.x * self.x + self.y * self.y).sqrt()
     }
 
+    pub fn distance(&self, other: MVector2) -> Real {
+        (self.clone() - other).magnitude()
+    }
+
     pub fn x(&self) -> Real {
         self.x
     }
 
+    pub fn x_mut(&mut self) -> &mut Real {
+        &mut self.x
+    }
+
     pub fn y(&self) -> Real {
         self.y
+    }
+
+    pub fn y_mut(&mut self) -> &mut Real {
+        &mut self.y
     }
 }
 
 impl std::ops::Add for MVector2 {
     type Output = MVector2;
 
-    fn add(self, other: MVector2) -> MVector2 {
+    fn add(self, other: MVector2) -> Self::Output {
         MVector2::new(self.x + other.x, self.y + other.y)
     }
 }
@@ -46,7 +58,7 @@ impl std::ops::AddAssign for MVector2 {
 impl std::ops::Neg for MVector2 {
     type Output = MVector2;
 
-    fn neg(self) -> MVector2 {
+    fn neg(self) -> Self::Output {
         MVector2::new(-self.x, -self.y)
     }
 }
@@ -54,7 +66,7 @@ impl std::ops::Neg for MVector2 {
 impl std::ops::Sub for MVector2 {
     type Output = MVector2;
 
-    fn sub(self, other: MVector2) -> MVector2 {
+    fn sub(self, other: MVector2) -> Self::Output {
         self + (-other)
     }
 }
@@ -68,7 +80,7 @@ impl std::ops::SubAssign for MVector2 {
 impl std::ops::Mul<Real> for MVector2 {
     type Output = MVector2;
 
-    fn mul(self, scalar: Real) -> MVector2 {
+    fn mul(self, scalar: Real) -> Self::Output {
         MVector2::new(self.x * scalar, self.y * scalar)
     }
 }
@@ -91,7 +103,7 @@ impl std::ops::MulAssign<Real> for MVector2 {
 impl std::ops::Div<Real> for MVector2 {
     type Output = MVector2;
 
-    fn div(self, scalar: Real) -> MVector2 {
+    fn div(self, scalar: Real) -> Self::Output {
         self * (1.0 / scalar)
     }
 }
@@ -99,5 +111,13 @@ impl std::ops::Div<Real> for MVector2 {
 impl std::ops::DivAssign<Real> for MVector2 {
     fn div_assign(&mut self, scalar: Real) {
         *self *= 1.0 / scalar;
+    }
+}
+
+impl std::ops::Mul<MVector2> for MVector2 {
+    type Output = Real;
+
+    fn mul(self, rhs: MVector2) -> Self::Output {
+        self.x * rhs.x + self.y * rhs.y
     }
 }

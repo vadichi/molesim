@@ -23,7 +23,7 @@ impl ISprite2D for Particle {
             base,
 
             is_initialized: false,
-            simulation_entity: MassiveParticle::new(MVector2::zero(), MVector2::new(40.0, 10.0)),
+            simulation_entity: MassiveParticle::new(1.0, MVector2::zero(), MVector2::zero()),
         }
     }
 

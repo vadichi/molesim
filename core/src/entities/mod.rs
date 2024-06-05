@@ -1,5 +1,4 @@
-pub mod particle;
+pub mod base;
 
-pub trait SimulationEntity {
-    fn update(&mut self, delta: f64);
-}
+pub mod bbox;
+pub mod particle;

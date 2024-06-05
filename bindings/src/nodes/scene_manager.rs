@@ -1,6 +1,7 @@
 use godot::engine::{INode2D, Node2D, Texture2D};
 use godot::prelude::*;
 
+use crate::nodes::fence::Fence;
 use crate::nodes::particle::Particle;
 
 #[derive(GodotClass)]
@@ -30,6 +31,41 @@ impl SceneManager {
         let coerced_sprite: Gd<Node> = sprite.upcast();
         self.base_mut().add_child(coerced_sprite);
     }
+
+    pub fn create_particle_mesh(&mut self) {
+        let viewport = self.base.as_gd().get_viewport_rect();
+        let width = viewport.size.x;
+        let height = viewport.size.y;
+
+        godot_print!(
+            "Generating particle mesh in viewport: {}x{}.",
+            width,
+            height
+        );
+
+        godot_print!(
+            "Particle mesh: {}x{}={}.",
+            x_count,
+            y_count,
+            x_count * y_count
+        );
+
+        for i in 0..x_count {
+            for j in 0..y_count {
+                let x = (i as f32 + 0.25) * self.particle_density;
+                let y = (j as f32 + 0.5) * self.particle_density;
+
+                self.create_particle(Vector2::new(x, y));
+            }
+        }
+    }
+
+    pub fn create_fence(&mut self) {
+        let fence = Fence::new_alloc();
+
+        let coerced_fence: Gd<Node> = fence.upcast();
+        self.base_mut().add_child(coerced_fence);
+    }
 }
 
 #[godot_api]
@@ -47,29 +83,11 @@ impl INode2D for SceneManager {
     fn enter_tree(&mut self) {
         godot_print!("Scene manager initialized.");
 
-        let viewport = self.base.as_gd().get_viewport_rect();
-        let width = viewport.size.x;
-        let height = viewport.size.y;
+        self.create_particle_mesh();
+        self.create_fence();
+    }
 
-        godot_print!("Generating particle mesh in viewport: {}x{}", width, height);
-
-        let x_count = (width / self.particle_density).round() as i32;
-        let y_count = (height / self.particle_density).round() as i32;
-
-        godot_print!(
-            "Particle mesh: {}x{}={}",
-            x_count,
-            y_count,
-            x_count * y_count
-        );
-
-        for i in 0..x_count {
-            for j in 0..y_count {
-                let x = i as f32 * self.particle_density;
-                let y = j as f32 * self.particle_density;
-
-                self.create_particle(Vector2::new(x, y));
-            }
-        }
+    fn physics_process(&mut self, _delta: f64) {
+        let children = self.base_mut().get_children();
     }
 }
