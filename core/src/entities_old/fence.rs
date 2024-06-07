@@ -47,22 +47,26 @@ impl SimulationEntity for Fence {
 }
 
 impl CollisionEntity for Fence {
-    fn collide(&mut self, other: &mut dyn CollisionEntity) {
-        if other.position().x() < self.limit_left {
-            *other.position_mut().x_mut() = self.limit_left;
-            *other.velocity_mut().x_mut() = -other.velocity().x();
-        } else if other.position().x() > self.limit_right {
-            *other.position_mut().x_mut() = self.limit_right;
-            *other.velocity_mut().x_mut() = -other.velocity().x();
-        }
+    fn collide(&mut self, other: &mut dyn CollisionEntity) -> Vector2 {
+        // if other.position().x() < self.limit_left {
+        //     *other.position_mut().x_mut() = self.limit_left;
+        //     return Vector2::new(-2.0 * other.velocity(), 0.0);
 
-        if other.position().y() < self.limit_top {
-            *other.position_mut().y_mut() = self.limit_top;
-            *other.velocity_mut().y_mut() = -other.velocity().y();
-        } else if other.position().y() > self.limit_bottom {
-            *other.position_mut().y_mut() = self.limit_bottom;
-            *other.velocity_mut().y_mut() = -other.velocity().y();
-        }
+        //     *other.velocity_mut().x_mut() = -other.velocity().x();
+        // } else if other.position().x() > self.limit_right {
+        //     *other.position_mut().x_mut() = self.limit_right;
+        //     *other.velocity_mut().x_mut() = -other.velocity().x();
+        // }
+
+        // if other.position().y() < self.limit_top {
+        //     *other.position_mut().y_mut() = self.limit_top;
+        //     *other.velocity_mut().y_mut() = -other.velocity().y();
+        // } else if other.position().y() > self.limit_bottom {
+        //     *other.position_mut().y_mut() = self.limit_bottom;
+        //     *other.velocity_mut().y_mut() = -other.velocity().y();
+        // }
+
+        Vector2::zero()
     }
 
     fn position(&self) -> Vector2 {

@@ -32,24 +32,22 @@ impl SimulationEntity for MassiveParticle {
 }
 
 impl CollisionEntity for MassiveParticle {
-    fn collide(&mut self, other: &mut dyn CollisionEntity) {
+    fn collide(&mut self, other: &mut dyn CollisionEntity) -> Vector2 {
+        match std::any::TypeId::of()
+
+
         let distance = self.position().distance(other.position());
         if distance > 1.0 {
-            return;
+            return Vector2::zero();
         }
 
         let total_mass = self.mass() + other.mass();
 
-        let self_velocity = (self.velocity() * (self.mass() - other.mass())
+        let new_velocity = (self.velocity() * (self.mass() - other.mass())
             + 2.0 * other.mass() * other.velocity())
             / total_mass;
 
-        let other_velocity = (other.velocity() * (other.mass() - self.mass())
-            + 2.0 * self.mass() * self.velocity())
-            / total_mass;
-
-        *self.velocity_mut() = self_velocity;
-        *other.velocity_mut() = other_velocity;
+        new_velocity - self.velocity()
     }
 
     fn position(&self) -> Vector2 {

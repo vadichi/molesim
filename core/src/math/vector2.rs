@@ -12,17 +12,11 @@ impl Vector2 {
     }
 
     pub fn zero() -> Vector2 {
-        Vector2 { x: 0.0, y: 0.0 }
+        Vector2::new(0.0, 0.0)
     }
+}
 
-    pub fn magnitude(&self) -> Real {
-        (self.x * self.x + self.y * self.y).sqrt()
-    }
-
-    pub fn distance(&self, other: Vector2) -> Real {
-        (self.clone() - other).magnitude()
-    }
-
+impl Vector2 {
     pub fn x(&self) -> Real {
         self.x
     }
@@ -37,6 +31,16 @@ impl Vector2 {
 
     pub fn y_mut(&mut self) -> &mut Real {
         &mut self.y
+    }
+}
+
+impl Vector2 {
+    pub fn magnitude(&self) -> Real {
+        (self.x * self.x + self.y * self.y).sqrt()
+    }
+
+    pub fn distance(&self, other: Vector2) -> Real {
+        (self.clone() - other).magnitude()
     }
 }
 

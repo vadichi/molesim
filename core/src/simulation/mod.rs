@@ -7,6 +7,7 @@ use crate::{
 
 pub struct Simulation {
     fence: Fence,
+    // should this be an unsafecell<vec> instead? less indirection, same result
     particles: Vec<UnsafeCell<MassiveParticle>>,
 }
 
@@ -42,18 +43,12 @@ impl Simulation {
     pub fn particles_iter(&self) -> impl Iterator<Item = &UnsafeCell<MassiveParticle>> {
         self.particles.iter()
     }
-}
 
-impl SimulationEntity for Simulation {
-    fn update(&mut self, delta: f64) {
-        self.fence.update(delta);
-        for cell in self.particles.iter_mut() {
-            let particle = &mut *cell.get_mut();
-            particle.update(delta);
-        }
+    fn collide(&mut self) {
+        let delta_velocities: Vec<Vector2> = Vec::with_capacity(self.particles.len());
 
-        for cell in self.particles.iter_mut() {
-            let particle = &mut *cell.get_mut();
+        for particle in self.particles.iter_mut() {
+            let particle = &mut *particle.get_mut();
             self.fence.collide(particle);
         }
 
@@ -65,6 +60,18 @@ impl SimulationEntity for Simulation {
                     particle_i.collide(particle_j);
                 }
             }
+        }
+    }
+}
+
+impl SimulationEntity for Simulation {
+    fn update(&mut self, delta: f64) {
+        self.collide();
+
+        self.fence.update(delta);
+        for cell in self.particles.iter_mut() {
+            let particle = &mut *cell.get_mut();
+            particle.update(delta);
         }
     }
 }

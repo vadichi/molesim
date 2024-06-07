@@ -1,5 +1,4 @@
-pub mod data;
-pub mod entities;
 pub mod math;
 
+pub mod entities;
 pub mod simulation;
