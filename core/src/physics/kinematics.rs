@@ -1,29 +1,19 @@
+use crate::entities::Update;
 use crate::math::Real;
 use crate::math::vector2::Vector2;
-use crate::entities::Updatable;
-use crate::entities::collisions::RigidBody;
 
-pub trait Simulated {
-    fn position(&self) -> Vector2;
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct SimulatedEntity {
+pub struct KinematicsEntity {
     position: Vector2,
     velocity: Vector2,
     acceleration: Vector2,
-
-    rigid_body: Option<RigidBody>,
 }
 
-impl SimulatedEntity {
+impl KinematicsEntity {
     pub fn new(position: Vector2) -> Self {
         Self {
             position,
             velocity: Vector2::zero(),
             acceleration: Vector2::zero(),
-
-            rigid_body: None,
         }
     }
 
@@ -36,22 +26,37 @@ impl SimulatedEntity {
         self.acceleration = acceleration;
         self
     }
-
-    pub fn with_rigid_body(mut self, rigid_body: RigidBody) -> Self {
-        self.rigid_body = Some(rigid_body);
-        self
-    }
 }
 
-impl Updatable for SimulatedEntity {
+impl Update for KinematicsEntity {
     fn update(&mut self, delta_time: Real) {
         self.position += self.velocity * delta_time;
         self.velocity += self.acceleration * delta_time;
     }
 }
 
-impl Simulated for SimulatedEntity {
-    fn position(&self) -> Vector2 {
+impl KinematicsEntity {
+    pub fn position(&self) -> Vector2 {
         self.position
+    }
+
+    pub fn position_mut(&mut self) -> &mut Vector2 {
+        &mut self.position
+    }
+
+    pub fn velocity(&self) -> Vector2 {
+        self.velocity
+    }
+
+    pub fn velocity_mut(&mut self) -> &mut Vector2 {
+        &mut self.velocity
+    }
+
+    pub fn acceleration(&self) -> Vector2 {
+        self.acceleration
+    }
+
+    pub fn acceleration_mut(&mut self) -> &mut Vector2 {
+        &mut self.acceleration
     }
 }
