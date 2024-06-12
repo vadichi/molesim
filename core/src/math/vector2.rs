@@ -42,6 +42,10 @@ impl Vector2 {
     pub fn distance(&self, other: Vector2) -> Real {
         (self.clone() - other).magnitude()
     }
+
+    pub fn normalized(&self) -> Vector2 {
+        *self / self.magnitude()
+    }
 }
 
 impl std::ops::Add for Vector2 {
