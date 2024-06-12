@@ -15,9 +15,20 @@ pub trait Collide {
     fn collide(&self, other: &Entity) -> Vector2;
 }
 
+#[derive(Debug, Clone)]
 pub enum Entity {
     Fence(fence::Fence),
     Circle(circle::Circle),
+}
+
+impl Entity {
+    pub fn new_fence(fence: fence::Fence) -> Self {
+        Entity::Fence(fence)
+    }
+
+    pub fn new_circle(circle: circle::Circle) -> Self {
+        Entity::Circle(circle)
+    }
 }
 
 impl Update for Entity {

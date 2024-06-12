@@ -5,6 +5,7 @@ use crate::entities::Update;
 use crate::entities::Untangle;
 use crate::entities::Collide;
 
+#[derive(Debug, Clone)]
 pub struct Fence {
     dimensions: Vector2,
 }
@@ -40,11 +41,11 @@ impl Fence {
         self.dimensions.x()
     }
 
-    pub fn limit_top(&self) -> Real {
+    pub fn limit_bottom(&self) -> Real {
         0.0
     }
 
-    pub fn limit_bottom(&self) -> Real {
+    pub fn limit_top(&self) -> Real {
         self.dimensions.y()
     }
 }

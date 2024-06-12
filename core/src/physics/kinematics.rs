@@ -2,6 +2,7 @@ use crate::entities::Update;
 use crate::math::Real;
 use crate::math::vector2::Vector2;
 
+#[derive(Debug, Clone)]
 pub struct KinematicsEntity {
     position: Vector2,
     velocity: Vector2,

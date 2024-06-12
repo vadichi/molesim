@@ -6,6 +6,7 @@ use crate::entities::Untangle;
 use crate::entities::Collide;
 use crate::physics::kinematics::KinematicsEntity;
 
+#[derive(Debug, Clone)]
 pub struct Circle {
     kinematics: KinematicsEntity,
 
@@ -63,11 +64,10 @@ impl Untangle for Circle {
                     *correction.x_mut() += fence.limit_right() - position.x();
                 }
 
-                // Y axis is inverted (increases downwards)
-                if position.y() < fence.limit_top() {
-                    *correction.y_mut() += fence.limit_top() - position.y();
-                } else if position.y() > fence.limit_bottom() {
+                if position.y() < fence.limit_bottom() {
                     *correction.y_mut() += fence.limit_bottom() - position.y();
+                } else if position.y() > fence.limit_top() {
+                    *correction.y_mut() += fence.limit_top() - position.y();
                 }
 
                 correction
@@ -109,8 +109,8 @@ impl Collide for Circle {
                     *final_velocity.x_mut() = -initial_velocity.x();
                 }
 
-                if (position.y() < fence.limit_top() && initial_velocity.y() < 0.0)
-                    || (position.y() > fence.limit_bottom() && initial_velocity.y() > 0.0)
+                if (position.y() < fence.limit_bottom() && initial_velocity.y() < 0.0)
+                    || (position.y() > fence.limit_top() && initial_velocity.y() > 0.0)
                 {
                     *final_velocity.y_mut() = -initial_velocity.y();
                 }
@@ -118,5 +118,15 @@ impl Collide for Circle {
                 final_velocity - initial_velocity
             }
         }
+    }
+}
+
+impl Circle {
+    pub fn kinematics(&self) -> &KinematicsEntity {
+        &self.kinematics
+    }
+
+    pub fn kinematics_mut(&mut self) -> &mut KinematicsEntity {
+        &mut self.kinematics
     }
 }
