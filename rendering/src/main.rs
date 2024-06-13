@@ -6,8 +6,6 @@ use std::{sync::Arc, thread};
 
 use flo_draw::*;
 
-use molesim_core::entities::CollisionEntity;
-
 pub fn main() {
     with_2d_graphics(|| {
         let state = concurrency::worker::create_shared_state();
@@ -26,14 +24,19 @@ pub fn main() {
 
             flo::clear_canvas(&canvas);
 
+            // use a position iterator, please!
             let simulation = arc.get();
-            for particle_ref in simulation.particles_iter() {
-                let particle = unsafe { *(*particle_ref).get() };
+            for particle_ref in simulation.particle_iter() {
+                // let particle = unsafe { *(*particle_ref).get() };
+                // let particle = match particle {
+                //     molesim_core::entities::Entity::Circle(circle) => circle,
+                //     _ => panic!("Expected Circle entity"),
+                // };
 
-                let x = particle.position().x();
-                let y = particle.position().y();
+                // let x = particle.kinematics().position().x();
+                // let y = particle.kinematics().position().y();
 
-                flo::draw_particle(&canvas, x, y);
+                flo::draw_particle(&canvas, particle_ref.x, particle_ref.y);
             }
 
             let elapsed = start_time.elapsed();

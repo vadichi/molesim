@@ -4,7 +4,7 @@ use crate::entities::{Collide, Entity, Untangle, Update};
 use crate::math::Real;
 use crate::math::vector2::Vector2;
 use crate::entities::fence::Fence;
-use crate::entities::circle::Circle;
+use crate::entities::circle::{Circle, CircleDrawable};
 
 pub mod particle_distribution;
 pub mod iteration;
@@ -55,6 +55,15 @@ impl Update for Simulation {
 }
 
 impl Simulation {
+    pub fn particle_iter(&self) -> impl Iterator<Item = CircleDrawable> + '_ {
+        self.particles
+            .iter()
+            .map(|cell| match unsafe { (*cell).get().read() } {
+                Entity::Circle(circle) => circle.drawable(),
+                _ => panic!("Expected Circle entity"),
+            })
+    }
+
     pub fn iter(&self) -> impl Iterator<Item = &Entity> + Clone {
         let particles: Vec<&Entity> = self
             .particles

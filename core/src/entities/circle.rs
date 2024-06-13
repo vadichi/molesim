@@ -130,3 +130,19 @@ impl Circle {
         &mut self.kinematics
     }
 }
+
+pub struct CircleDrawable {
+    pub x: Real,
+    pub y: Real,
+    pub radius: Real,
+}
+
+impl Circle {
+    pub fn drawable(&self) -> CircleDrawable {
+        CircleDrawable {
+            x: self.kinematics.position().x(),
+            y: self.kinematics.position().y(),
+            radius: self.radius,
+        }
+    }
+}
