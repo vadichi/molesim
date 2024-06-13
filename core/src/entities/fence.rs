@@ -24,11 +24,29 @@ impl Untangle for Fence {
     fn untangle(&self, _other: &Entity) -> Vector2 {
         Vector2::zero()
     }
+
+    fn accept_untangle_correction(&mut self, correction: Vector2) {
+        if correction != Vector2::zero() {
+            panic!(
+                "Untangle correction should be zero for Fence entity, got {:?}",
+                correction
+            );
+        }
+    }
 }
 
 impl Collide for Fence {
     fn collide(&self, _other: &Entity) -> Vector2 {
         Vector2::zero()
+    }
+
+    fn accept_collision_correction(&mut self, correction: Vector2) {
+        if correction != Vector2::zero() {
+            panic!(
+                "Collision correction should be zero for Fence entity, got {:?}",
+                correction
+            );
+        }
     }
 }
 

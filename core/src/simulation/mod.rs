@@ -105,6 +105,9 @@ impl Simulation {
 
     pub fn collide_all(&mut self) {
         let mut velocity_corrections: Vec<Vector2> = Vec::new();
+
+        // FixMe!!!
+
         for (entity_a, entity_b) in self.pairs() {
             velocity_corrections.push(entity_a.collide(entity_b));
         }

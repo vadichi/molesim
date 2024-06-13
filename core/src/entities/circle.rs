@@ -74,6 +74,10 @@ impl Untangle for Circle {
             }
         }
     }
+
+    fn accept_untangle_correction(&mut self, correction: Vector2) {
+        *self.kinematics.position_mut() += correction;
+    }
 }
 
 impl Collide for Circle {
@@ -118,6 +122,10 @@ impl Collide for Circle {
                 final_velocity - initial_velocity
             }
         }
+    }
+
+    fn accept_collision_correction(&mut self, correction: Vector2) {
+        *self.kinematics.velocity_mut() += correction;
     }
 }
 

@@ -9,10 +9,12 @@ pub trait Update {
 
 pub trait Untangle {
     fn untangle(&self, other: &Entity) -> Vector2;
+    fn accept_untangle_correction(&mut self, correction: Vector2);
 }
 
 pub trait Collide {
     fn collide(&self, other: &Entity) -> Vector2;
+    fn accept_collision_correction(&mut self, correction: Vector2);
 }
 
 #[derive(Debug, Clone)]
@@ -47,6 +49,13 @@ impl Untangle for Entity {
             Entity::Circle(circle) => circle.untangle(other),
         }
     }
+
+    fn accept_untangle_correction(&mut self, correction: Vector2) {
+        match self {
+            Entity::Fence(fence) => fence.accept_untangle_correction(correction),
+            Entity::Circle(circle) => circle.accept_untangle_correction(correction),
+        }
+    }
 }
 
 impl Collide for Entity {
@@ -54,6 +63,13 @@ impl Collide for Entity {
         match self {
             Entity::Fence(fence) => fence.collide(other),
             Entity::Circle(circle) => circle.collide(other),
+        }
+    }
+
+    fn accept_collision_correction(&mut self, correction: Vector2) {
+        match self {
+            Entity::Fence(fence) => fence.accept_collision_correction(correction),
+            Entity::Circle(circle) => circle.accept_collision_correction(correction),
         }
     }
 }
