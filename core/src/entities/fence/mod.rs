@@ -5,7 +5,7 @@ use crate::entities::Update;
 use crate::entities::Untangle;
 use crate::entities::Collide;
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub struct Fence {
     dimensions: Vector2,
 }

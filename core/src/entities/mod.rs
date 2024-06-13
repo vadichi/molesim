@@ -17,18 +17,18 @@ pub trait Collide {
     fn accept_collision_correction(&mut self, correction: Vector2);
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub enum Entity {
     Fence(fence::Fence),
     Circle(circle::Circle),
 }
 
 impl Entity {
-    pub fn new_fence(fence: fence::Fence) -> Self {
+    pub fn from_fence(fence: fence::Fence) -> Self {
         Entity::Fence(fence)
     }
 
-    pub fn new_circle(circle: circle::Circle) -> Self {
+    pub fn from_circle(circle: circle::Circle) -> Self {
         Entity::Circle(circle)
     }
 }

@@ -6,7 +6,7 @@ use crate::entities::Untangle;
 use crate::entities::Collide;
 use crate::physics::kinematics::KinematicsEntity;
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub struct Circle {
     kinematics: KinematicsEntity,
 

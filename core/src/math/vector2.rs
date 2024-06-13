@@ -1,6 +1,6 @@
 use crate::math::Real;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Vector2 {
     x: Real,
     y: Real,
