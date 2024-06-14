@@ -25,6 +25,6 @@ pub fn simulation_worker_main(state_arc: Arc<SharedState>) {
         simulation.update(tunables::SIMULATION_DELTA_TIME);
 
         let render_time = start_time.elapsed();
-        println!("Render time: {:?}", render_time);
+        println!("Simulation time: {:?}", render_time);
     }
 }

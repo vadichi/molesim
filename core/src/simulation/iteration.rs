@@ -1,27 +1,41 @@
-use std::ops::Index;
+use std::ops::{Index, IndexMut};
 use crate::entities::Entity;
 use crate::simulation::Simulation;
 
-pub struct SimulationEntityIndex {
-    index: usize,
-    particle_count: usize,
-}
+// iterators; iterators w/ ::enumerate() to compare? pre-drop...? still need num to push to vector
 
-#[derive(Clone, PartialEq, Debug)]
-pub enum SimulationEntity {
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum SimulationEntityIndex {
     Fence,
     Particle(usize),
 }
 
 impl SimulationEntityIndex {
-    pub fn new(simulation: &Simulation) -> Self {
+    pub fn new_complete() -> Self {
         Self::Fence
     }
 
-    pub fn next(self) -> Self {
+    pub fn new_particles() -> Self {
+        Self::Particle(0)
+    }
+}
+
+impl SimulationEntityIndex {
+    pub fn next(mut self) -> Self {
         match self {
-            SimulationEntityIndex::Fence => Self::Particle(0),
-            SimulationEntityIndex::Particle(index) => Self::Particle(index + 1),
+            SimulationEntityIndex::Fence => SimulationEntityIndex::Particle(0),
+            SimulationEntityIndex::Particle(index) => {
+                SimulationEntityIndex::Particle(index + 1)
+            }
+        }
+    }
+}
+
+impl Simulation {
+    pub fn exists(&self, index: SimulationEntityIndex) -> bool {
+        match index {
+            SimulationEntityIndex::Fence => true,
+            SimulationEntityIndex::Particle(index) => index < self.particles.len(),
         }
     }
 }
@@ -32,10 +46,16 @@ impl Index<SimulationEntityIndex> for Simulation {
     fn index(&self, index: SimulationEntityIndex) -> &Self::Output {
         match index {
             SimulationEntityIndex::Fence => &self.fence,
-            SimulationEntityIndex::Particle(index) => {
-                let cell = &self.particles[index];
-                unsafe { &*cell.get() }
-            }
+            SimulationEntityIndex::Particle(index) => unsafe { &*self.particles[index].get() },
+        }
+    }
+}
+
+impl IndexMut<SimulationEntityIndex> for Simulation {
+    fn index_mut(&mut self, index: SimulationEntityIndex) -> &mut Self::Output {
+        match index {
+            SimulationEntityIndex::Fence => &mut self.fence,
+            SimulationEntityIndex::Particle(index) => unsafe { &mut *self.particles[index].get() },
         }
     }
 }

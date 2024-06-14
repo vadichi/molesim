@@ -5,6 +5,5 @@ edition.workspace = true
 publish.workspace = true
 
 [dependencies]
-itertools = "0.13.0"
 rand = "0.8.5"
 wgpu = "0.20.0"
