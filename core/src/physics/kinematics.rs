@@ -31,8 +31,8 @@ impl KinematicsEntity {
 
 impl Update for KinematicsEntity {
     fn update(&mut self, delta_time: Real) {
-        self.position += self.velocity * delta_time;
         self.velocity += self.acceleration * delta_time;
+        self.position += self.velocity * delta_time;
     }
 }
 
