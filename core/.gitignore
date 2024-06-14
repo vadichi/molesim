@@ -1,5 +1,0 @@
-# Build files
-/target/
-
-# Lockfile (library target)
-Cargo.lock
