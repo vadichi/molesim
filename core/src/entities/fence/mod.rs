@@ -56,7 +56,7 @@ impl Fence {
     }
 
     pub fn limit_right(&self) -> Real {
-        self.dimensions.x()
+        self.dimensions.x
     }
 
     pub fn limit_bottom(&self) -> Real {
@@ -64,6 +64,6 @@ impl Fence {
     }
 
     pub fn limit_top(&self) -> Real {
-        self.dimensions.y()
+        self.dimensions.y
     }
 }

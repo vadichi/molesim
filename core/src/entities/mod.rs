@@ -1,4 +1,5 @@
-use crate::math::{vector2::Vector2, Real};
+use crate::math::Real;
+use crate::math::vector2::Vector2;
 
 pub mod circle;
 pub mod fence;

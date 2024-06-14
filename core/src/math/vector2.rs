@@ -2,8 +2,8 @@ use crate::math::Real;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Vector2 {
-    x: Real,
-    y: Real,
+    pub x: Real,
+    pub y: Real,
 }
 
 impl Vector2 {
@@ -17,34 +17,16 @@ impl Vector2 {
 }
 
 impl Vector2 {
-    pub fn x(&self) -> Real {
-        self.x
+    pub fn magnitude(self) -> Real {
+        (self * self).sqrt()
     }
 
-    pub fn x_mut(&mut self) -> &mut Real {
-        &mut self.x
+    pub fn distance(self, other: Vector2) -> Real {
+        (self - other).magnitude()
     }
 
-    pub fn y(&self) -> Real {
-        self.y
-    }
-
-    pub fn y_mut(&mut self) -> &mut Real {
-        &mut self.y
-    }
-}
-
-impl Vector2 {
-    pub fn magnitude(&self) -> Real {
-        (self.x * self.x + self.y * self.y).sqrt()
-    }
-
-    pub fn distance(&self, other: Vector2) -> Real {
-        (self.clone() - other).magnitude()
-    }
-
-    pub fn normalized(&self) -> Vector2 {
-        *self / self.magnitude()
+    pub fn normalized(self) -> Vector2 {
+        self / self.magnitude()
     }
 }
 

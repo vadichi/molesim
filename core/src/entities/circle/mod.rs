@@ -42,15 +42,17 @@ impl Untangle for Circle {
     fn untangle(&self, other: &Entity) -> Vector2 {
         match other {
             Entity::Circle(circle) => {
-                let distance = self.kinematics.position() - circle.kinematics.position();
+                // let distance = self.kinematics.position() - circle.kinematics.position();
+                //
+                // let overlap = self.radius + circle.radius - distance.magnitude();
+                // if overlap < 0.0 {
+                //     return Vector2::zero();
+                // }
+                //
+                // let unit = distance.normalized();
+                // 0.5 * overlap * unit
 
-                let overlap = self.radius + circle.radius - distance.magnitude();
-                if overlap < 0.0 {
-                    return Vector2::zero();
-                }
-
-                let unit = distance.normalized();
-                0.5 * overlap * unit
+                Vector2::zero()
             }
 
             Entity::Fence(fence) => {
@@ -58,16 +60,16 @@ impl Untangle for Circle {
 
                 let mut correction = Vector2::zero();
 
-                if position.x() < fence.limit_left() {
-                    *correction.x_mut() += fence.limit_left() - position.x();
-                } else if position.x() > fence.limit_right() {
-                    *correction.x_mut() += fence.limit_right() - position.x();
+                if position.x < fence.limit_left() {
+                    correction.x += fence.limit_left() - position.x;
+                } else if position.x > fence.limit_right() {
+                    correction.x += fence.limit_right() - position.x;
                 }
 
-                if position.y() < fence.limit_bottom() {
-                    *correction.y_mut() += fence.limit_bottom() - position.y();
-                } else if position.y() > fence.limit_top() {
-                    *correction.y_mut() += fence.limit_top() - position.y();
+                if position.y < fence.limit_bottom() {
+                    correction.y += fence.limit_bottom() - position.y;
+                } else if position.y > fence.limit_top() {
+                    correction.y += fence.limit_top() - position.y;
                 }
 
                 correction
@@ -106,17 +108,17 @@ impl Collide for Circle {
                 let mut final_velocity = self.kinematics.velocity();
 
                 // Only invert the velocity if the circle is leaving the fence
-                // This prevents the circle from getting stuck in an oscillation at the edge
-                if (position.x() < fence.limit_left() && initial_velocity.x() < 0.0)
-                    || (position.x() > fence.limit_right() && initial_velocity.x() > 0.0)
+                // This prevents the circle from getting stuck in an oscillation at the edge?
+                if (position.x < fence.limit_left() && initial_velocity.x < 0.0)
+                    || (position.x > fence.limit_right() && initial_velocity.x > 0.0)
                 {
-                    *final_velocity.x_mut() = -initial_velocity.x();
+                    final_velocity.x = -initial_velocity.x;
                 }
 
-                if (position.y() < fence.limit_bottom() && initial_velocity.y() < 0.0)
-                    || (position.y() > fence.limit_top() && initial_velocity.y() > 0.0)
+                if (position.y < fence.limit_bottom() && initial_velocity.y < 0.0)
+                    || (position.y > fence.limit_top() && initial_velocity.y > 0.0)
                 {
-                    *final_velocity.y_mut() = -initial_velocity.y();
+                    final_velocity.y = -initial_velocity.y;
                 }
 
                 final_velocity - initial_velocity
@@ -148,8 +150,8 @@ pub struct CircleDrawable {
 impl Circle {
     pub fn drawable(&self) -> CircleDrawable {
         CircleDrawable {
-            x: self.kinematics.position().x(),
-            y: self.kinematics.position().y(),
+            x: self.kinematics.position().x,
+            y: self.kinematics.position().y,
             radius: self.radius,
         }
     }
