@@ -6,4 +6,4 @@ publish.workspace = true
 
 [dependencies]
 rand = "0.8.5"
-wgpu = "0.20.0"
+wgpu = "22.1.0"
