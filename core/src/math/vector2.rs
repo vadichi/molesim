@@ -30,6 +30,12 @@ impl Vector2 {
     }
 }
 
+impl Default for Vector2 {
+    fn default() -> Vector2 {
+        Vector2::zero()
+    }
+}
+
 impl std::ops::Add for Vector2 {
     type Output = Vector2;
 

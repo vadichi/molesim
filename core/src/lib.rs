@@ -7,8 +7,9 @@
  * - Add spin
  * - Safety
  * - Compute shaders
- * - Untangle, Collide => AcceptUntangleCorrection, AcceptCollisionCorrection
+ * - Especially as spin is added, untangle + collide + spin should be combined into a -> [Vector2; 3]
  */
+
 
 pub mod math;
 pub mod physics;

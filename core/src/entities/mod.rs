@@ -4,31 +4,31 @@ use crate::math::vector2::Vector2;
 pub mod circle;
 pub mod fence;
 
-pub trait Update {
-    fn update(&mut self, delta_time: Real);
-}
-
-pub trait Untangle {
-    fn untangle(&self, other: &Entity) -> Vector2;
-    fn accept_untangle_correction(&mut self, correction: Vector2);
-}
-
-pub trait Collide {
-    fn collide(&self, other: &Entity) -> Vector2;
-    fn accept_collision_correction(&mut self, correction: Vector2);
-}
-
 #[derive(Clone, Debug)]
 pub enum Entity {
     Fence(fence::Fence),
     Circle(circle::Circle),
 }
 
+pub trait Update {
+    fn update(&mut self, delta_time: Real);
+}
+
+pub trait Collide {
+    fn collide(&self, other: &Entity) -> CollisionCorrection;
+    fn accept_correction(&mut self, correction: &CollisionCorrection);
+}
+
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct CollisionCorrection {
+    position: Vector2,
+    velocity: Vector2,
+}
+
 impl Entity {
     pub fn from_fence(fence: fence::Fence) -> Self {
         Entity::Fence(fence)
     }
-
     pub fn from_circle(circle: circle::Circle) -> Self {
         Entity::Circle(circle)
     }
@@ -43,34 +43,50 @@ impl Update for Entity {
     }
 }
 
-impl Untangle for Entity {
-    fn untangle(&self, other: &Entity) -> Vector2 {
-        match self {
-            Entity::Fence(fence) => fence.untangle(other),
-            Entity::Circle(circle) => circle.untangle(other),
-        }
-    }
-
-    fn accept_untangle_correction(&mut self, correction: Vector2) {
-        match self {
-            Entity::Fence(fence) => fence.accept_untangle_correction(correction),
-            Entity::Circle(circle) => circle.accept_untangle_correction(correction),
-        }
-    }
-}
-
 impl Collide for Entity {
-    fn collide(&self, other: &Entity) -> Vector2 {
+    fn collide(&self, other: &Entity) -> CollisionCorrection {
         match self {
             Entity::Fence(fence) => fence.collide(other),
             Entity::Circle(circle) => circle.collide(other),
         }
     }
 
-    fn accept_collision_correction(&mut self, correction: Vector2) {
+    fn accept_correction(&mut self, correction: &CollisionCorrection) {
         match self {
-            Entity::Fence(fence) => fence.accept_collision_correction(correction),
-            Entity::Circle(circle) => circle.accept_collision_correction(correction),
+            Entity::Fence(fence) => fence.accept_correction(correction),
+            Entity::Circle(circle) => circle.accept_correction(correction),
         }
     }
 }
+
+impl CollisionCorrection {
+    pub fn new(position: Vector2, velocity: Vector2) -> Self {
+        CollisionCorrection { position, velocity }
+    }
+
+    pub fn zero() -> Self {
+        CollisionCorrection {
+            position: Vector2::zero(),
+            velocity: Vector2::zero(),
+        }
+    }
+}
+
+impl std::ops::Add for CollisionCorrection {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        CollisionCorrection {
+            position: self.position + other.position,
+            velocity: self.velocity + other.velocity,
+        }
+    }
+}
+
+impl std::ops::AddAssign for CollisionCorrection {
+    fn add_assign(&mut self, other: Self) {
+        self.position += other.position;
+        self.velocity += other.velocity;
+    }
+}
+

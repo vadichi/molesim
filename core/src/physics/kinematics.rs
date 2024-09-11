@@ -31,8 +31,23 @@ impl KinematicsEntity {
 
 impl Update for KinematicsEntity {
     fn update(&mut self, delta_time: Real) {
+        self.update_with(delta_time, Vector2::zero(), Vector2::zero());
+    }
+}
+
+impl KinematicsEntity {
+    pub fn update_with(&mut self, delta_time: Real, delta_position: Vector2, delta_velocity: Vector2) {
+        self.position += delta_position;
+
+        let initial_velocity = self.velocity;
+
         self.velocity += self.acceleration * delta_time;
-        self.position += self.velocity * delta_time;
+        self.velocity += delta_velocity;
+
+        let final_velocity = self.velocity;
+        let average_velocity = (initial_velocity + final_velocity) / 2.0;
+
+        self.position += average_velocity * delta_time;
     }
 }
 

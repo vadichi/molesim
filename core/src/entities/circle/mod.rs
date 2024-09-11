@@ -1,8 +1,8 @@
+use std::hint::black_box;
 use crate::math::Real;
 use crate::math::vector2::Vector2;
-use crate::entities::Entity;
+use crate::entities::{CollisionCorrection, Entity};
 use crate::entities::Update;
-use crate::entities::Untangle;
 use crate::entities::Collide;
 use crate::physics::kinematics::KinematicsEntity;
 
@@ -12,6 +12,8 @@ pub struct Circle {
 
     mass: Real,
     radius: Real,
+
+    collision_correction: CollisionCorrection,
 }
 
 impl Circle {
@@ -28,32 +30,53 @@ impl Circle {
                 .with_acceleration(acceleration),
             mass,
             radius,
+            collision_correction: CollisionCorrection::default(),
         }
     }
 }
 
 impl Update for Circle {
     fn update(&mut self, delta_time: Real) {
-        self.kinematics.update(delta_time);
+        self.kinematics.update_with(
+            delta_time, 
+            self.collision_correction.position,
+            self.collision_correction.velocity,
+        );
     }
 }
 
-impl Untangle for Circle {
-    fn untangle(&self, other: &Entity) -> Vector2 {
-        match other {
-            Entity::Circle(circle) => {
-                // let distance = self.kinematics.position() - circle.kinematics.position();
-                //
-                // let overlap = self.radius + circle.radius - distance.magnitude();
-                // if overlap < 0.0 {
-                //     return Vector2::zero();
-                // }
-                //
-                // let unit = distance.normalized();
-                // 0.5 * overlap * unit
+impl Collide for Circle {
+    fn collide(&self, other: &Entity) -> CollisionCorrection {
+        let q = CollisionCorrection {
+            position: self.position_correction(other),
+            velocity: self.velocity_correction(other),
+        };
 
-                Vector2::zero()
-            }
+        // todo debug
+        // black_box(q)
+        
+        q
+    }
+
+    fn accept_correction(&mut self, correction: &CollisionCorrection) {
+        self.collision_correction = correction.clone();
+    }
+}
+
+impl Circle {
+    fn position_correction(&self, other: &Entity) -> Vector2 {
+        match other {
+            Entity::Circle(other) => {
+                let distance = self.kinematics.position() - other.kinematics.position();
+
+                let overlap = self.radius + other.radius - distance.magnitude();
+                if overlap < 0.0 {
+                    return Vector2::zero();
+                }
+
+                let unit = distance.normalized();
+                0.5 * overlap * unit
+            },
 
             Entity::Fence(fence) => {
                 let position = self.kinematics.position();
@@ -77,13 +100,7 @@ impl Untangle for Circle {
         }
     }
 
-    fn accept_untangle_correction(&mut self, correction: Vector2) {
-        *self.kinematics.position_mut() += correction;
-    }
-}
-
-impl Collide for Circle {
-    fn collide(&self, other: &Entity) -> Vector2 {
+    fn velocity_correction(&self, other: &Entity) -> Vector2 {
         match other {
             Entity::Circle(other) => {
                 let initial_velocity = self.kinematics.velocity();
@@ -98,8 +115,12 @@ impl Collide for Circle {
                     + 2.0 * other.mass * other.kinematics.velocity())
                     / total_mass;
 
+                if (final_velocity.x.is_nan() || final_velocity.x.is_infinite() || final_velocity.y.is_nan() || final_velocity.y.is_infinite()) {
+                    panic!("final_velocity.x is NaN after collision with r1,v1,m1,r2,v2,m2: {},{},{},{},{},{}", self.radius, initial_velocity.x, self.mass, other.radius, other.kinematics.velocity().x, other.mass);
+                }
+
                 final_velocity - initial_velocity
-            }
+            },
 
             Entity::Fence(fence) => {
                 let position = self.kinematics.position();
@@ -109,29 +130,46 @@ impl Collide for Circle {
 
                 // Only invert the velocity if the circle is leaving the fence
                 // This prevents the circle from getting stuck in an oscillation at the edge?
-                if (position.x < fence.limit_left() && initial_velocity.x < 0.0)
-                    || (position.x > fence.limit_right() && initial_velocity.x > 0.0)
+                if (position.x <= fence.limit_left() && initial_velocity.x < 0.0)
+                    || (position.x >= fence.limit_right() && initial_velocity.x > 0.0)
                 {
                     final_velocity.x = -initial_velocity.x;
                 }
 
-                if (position.y < fence.limit_bottom() && initial_velocity.y < 0.0)
-                    || (position.y > fence.limit_top() && initial_velocity.y > 0.0)
+                if (position.y <= fence.limit_bottom() && initial_velocity.y < 0.0)
+                    || (position.y >= fence.limit_top() && initial_velocity.y > 0.0)
                 {
                     final_velocity.y = -initial_velocity.y;
                 }
 
                 final_velocity - initial_velocity
-            }
+            },
         }
-    }
-
-    fn accept_collision_correction(&mut self, correction: Vector2) {
-        *self.kinematics.velocity_mut() += correction;
     }
 }
 
 impl Circle {
+    pub fn total_energy(&self) -> Real {
+        self.kinetic_energy() + self.potential_energy()
+    }
+
+    pub fn potential_energy(&self) -> Real {
+        // ToDo hack
+        self.mass * -self.kinematics.acceleration().y * self.kinematics.position().y
+    }
+
+    pub fn kinetic_energy(&self) -> Real {
+        0.5 * self.mass * self.kinematics.velocity().magnitude().powi(2)
+    }
+
+    pub fn momentum(&self) -> Vector2 {
+        self.kinematics.velocity() * self.mass
+    }
+
+    pub fn mass(&self) -> Real {
+        self.mass
+    }
+
     pub fn kinematics(&self) -> &KinematicsEntity {
         &self.kinematics
     }

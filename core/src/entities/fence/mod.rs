@@ -1,8 +1,7 @@
 use crate::math::Real;
 use crate::math::vector2::Vector2;
-use crate::entities::Entity;
+use crate::entities::{CollisionCorrection, Entity};
 use crate::entities::Update;
-use crate::entities::Untangle;
 use crate::entities::Collide;
 
 #[derive(Clone, Debug)]
@@ -20,30 +19,15 @@ impl Update for Fence {
     fn update(&mut self, _delta_time: Real) {}
 }
 
-impl Untangle for Fence {
-    fn untangle(&self, _other: &Entity) -> Vector2 {
-        Vector2::zero()
-    }
-
-    fn accept_untangle_correction(&mut self, correction: Vector2) {
-        if correction != Vector2::zero() {
-            panic!(
-                "Untangle correction should be zero for Fence entity, got {:?}",
-                correction
-            );
-        }
-    }
-}
-
 impl Collide for Fence {
-    fn collide(&self, _other: &Entity) -> Vector2 {
-        Vector2::zero()
+    fn collide(&self, _other: &Entity) -> CollisionCorrection {
+        CollisionCorrection::zero()
     }
 
-    fn accept_collision_correction(&mut self, correction: Vector2) {
-        if correction != Vector2::zero() {
+    fn accept_correction(&mut self, correction: &CollisionCorrection) {
+        if *correction != CollisionCorrection::zero() {
             panic!(
-                "Collision correction should be zero for Fence entity, got {:?}",
+                "Invalid collision correction {:?} for Fence entity: must be zero.",
                 correction
             );
         }
