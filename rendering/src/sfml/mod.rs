@@ -1,9 +1,11 @@
-use sfml::window::Event;
-use sfml::window::VideoMode;
-use sfml::graphics::{CircleShape, Color, Shape, Transformable};
+mod drawables;
+
+use crate::sfml::drawables::Draw;
 use sfml::graphics::RenderTarget;
 use sfml::graphics::RenderWindow;
-use sfml::system::Vector2f;
+use sfml::graphics::Color;
+use sfml::window::Event;
+use sfml::window::VideoMode;
 
 pub struct SFMLRenderer {
     window: RenderWindow,
@@ -31,22 +33,9 @@ impl SFMLRenderer {
             }
             
             if let Some(simulation) = unsafe { crate::SIMULATION.as_ref() } {
-                for entity in &simulation.entities {
-                    if let molesim_core::entities::Entity::Circle(circle) = entity {
-                        let mut c = CircleShape::new(5.0, 30);
-                        c.set_position(
-                            Vector2f::new(
-                                circle.kinematics().position().x as f32,
-                                (crate::tunables::SIMULATION_HEIGHT - circle.kinematics().position().y) as f32,
-                            )
-                        );
-                        c.set_fill_color(Color::BLACK);
-                        
-                        self.window.draw(
-                            &c
-                        )
-                    }
-                }
+                simulation.entities.iter().for_each(|entity| {
+                    entity.draw(&mut self.window);
+                });
             }
 
             Self::render_window(&mut self.window);

@@ -9,4 +9,3 @@ pub const SIMULATION_DELTA_TIME: Real = 0.1;
 
 pub const FLUID_MASS: Real = 1.0;
 pub const SIMULATION_DENSITY: Real = 5000.0;
-

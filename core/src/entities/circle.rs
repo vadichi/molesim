@@ -1,10 +1,10 @@
-use std::hint::black_box;
 use crate::math::Real;
 use crate::math::vector2::Vector2;
-use crate::entities::{CollisionCorrection, Entity};
+use crate::physics::kinematics::KinematicsEntity;
+use crate::entities::Entity;
 use crate::entities::Update;
 use crate::entities::Collide;
-use crate::physics::kinematics::KinematicsEntity;
+use crate::entities::CollisionCorrection;
 
 #[derive(Clone, Debug)]
 pub struct Circle {
@@ -47,15 +47,10 @@ impl Update for Circle {
 
 impl Collide for Circle {
     fn collide(&self, other: &Entity) -> CollisionCorrection {
-        let q = CollisionCorrection {
+        CollisionCorrection {
             position: self.position_correction(other),
             velocity: self.velocity_correction(other),
-        };
-
-        // todo debug
-        // black_box(q)
-        
-        q
+        }
     }
 
     fn accept_correction(&mut self, correction: &CollisionCorrection) {
@@ -114,11 +109,7 @@ impl Circle {
                 let final_velocity = (initial_velocity * (self.mass - other.mass)
                     + 2.0 * other.mass * other.kinematics.velocity())
                     / total_mass;
-
-                if (final_velocity.x.is_nan() || final_velocity.x.is_infinite() || final_velocity.y.is_nan() || final_velocity.y.is_infinite()) {
-                    panic!("final_velocity.x is NaN after collision with r1,v1,m1,r2,v2,m2: {},{},{},{},{},{}", self.radius, initial_velocity.x, self.mass, other.radius, other.kinematics.velocity().x, other.mass);
-                }
-
+                
                 final_velocity - initial_velocity
             },
 

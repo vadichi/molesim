@@ -1,7 +1,7 @@
 use crate::math::Real;
 use crate::math::vector2::Vector2;
 
-use crate::physics::fluid::Fluid;
+use crate::physics::fluid::{Blob, Fluid};
 
 use crate::entities::Entity;
 use crate::entities::Update;
@@ -17,20 +17,16 @@ pub struct Simulation {
 impl Simulation {
     pub fn new(fluid: Fluid, dimensions: Vector2) -> Self {
         let fence: Fence = Fence::new(dimensions);
-
-        let blob_mass = fluid.get_blob_mass();
-        let blobs: Vec<Entity> = fluid.get_blob_distribution()
+        
+        let molecules = fluid.get_blobs()
             .iter()
-            .map(|position| {
+            .map(|blob| {
                 Entity::Circle(
                     Circle::new(
-                        *position,
-                        Vector2::new(
-                            (rand::random::<Real>() - 0.5) * 50.0,
-                            (rand::random::<Real>() - 0.5) * 50.0,
-                        ),
+                        blob.get_position(),
+                        blob.get_velocity(),
                         Vector2::new(0.0, -9.81),
-                        blob_mass,
+                        blob.get_mass(),
                         5.0,
                     )
                 )
@@ -38,7 +34,7 @@ impl Simulation {
             .collect();
 
         Self {
-            entities: [vec![Entity::Fence(fence)], blobs].concat(),
+            entities: [vec![Entity::Fence(fence)], molecules].concat(),
         }
     }
 }
@@ -52,31 +48,37 @@ impl Update for Simulation {
 
 impl Simulation {
     pub fn update_all(&mut self, delta: Real) {
-        for entity in &mut self.entities {
-            entity.update(delta);
-
-            if let Entity::Circle(circle) = entity {
-                if circle.kinematics().position().x.is_nan() || circle.kinematics().position().y.is_nan() {
-                    panic!("Particle {:?} has NaN position", circle);
-                }
-            }
-        }
+        self.entities
+            .iter_mut().
+            for_each(|entity| {
+                entity.update(delta)
+            });
     }
 
     pub fn collide_all(&mut self) {
-        let mut corrections: Vec<CollisionCorrection> = vec![CollisionCorrection::zero(); self.entities.len()];
+        let mut corrections: Vec<CollisionCorrection> = vec![
+            CollisionCorrection::zero(); 
+            self.entities.len()
+        ];
+        
+        self.entities
+            .iter()
+            .enumerate()
+            .for_each(|(index_a, entity_a)| {
+               self.entities
+                   .iter()
+                   .enumerate()
+                   .filter(|(index_b, _)| index_a != *index_b)
+                   .for_each(|(_, entity_b)| {
+                       corrections[index_a] += entity_a.collide(entity_b);
+                   }); 
+            });
 
-        for (index_a, entity_a) in self.entities.iter().enumerate() {
-            for (index_b, entity_b) in self.entities.iter().enumerate() {
-                if index_a != index_b {
-                    let correction = entity_a.collide(entity_b);
-                    corrections[index_a] += correction;
-                }
-            }
-        }
-
-        for (index, entity) in self.entities.iter_mut().enumerate() {
-            entity.accept_correction(&corrections[index]);
-        }
+        self.entities
+            .iter_mut()
+            .enumerate()
+            .for_each(|(index, entity)| {
+                entity.accept_correction(&corrections[index]);
+            });
     }
 }
